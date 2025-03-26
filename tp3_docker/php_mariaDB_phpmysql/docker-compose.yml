@@ -1,0 +1,50 @@
+version: '3.3'
+
+services:
+  phpapp:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: php
+    image: php:8.2-apache
+    ports:
+      - 8181:80
+    environment:
+      database__connection__user: myuser
+      database__connection__password: mypassword
+      database__name: mydatabase
+    networks:
+      - lan
+    volumes:
+      - ./php:/var/www/html
+
+  bd:
+    image: mysql:latest
+    container_name: bd
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: mydatabase
+      MYSQL_USER: myuser
+      MYSQL_PASSWORD: mypassword
+    networks:
+      - lan
+    volumes:
+      - bd-data:/var/lib/mysql
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: phpmyadmin
+    environment:
+      PMA_HOST: bd
+      MYSQL_ROOT_PASSWORD: rootpassword
+    ports:
+      - 8080:80
+    networks:
+      - lan
+
+networks:
+  lan:
+    external: false
+
+volumes:
+  bd-data:
